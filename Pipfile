@@ -4,8 +4,15 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+pyspark = "*"
+mage-ai = "*"
+pandas = "*"
+matplotlib = "*"
+seaborn = "*"
+pyarrow = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.13"
+python_version = "3.11"
+python_full_version = "3.11.9"
