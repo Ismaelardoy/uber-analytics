@@ -70,6 +70,6 @@ df.filter(col("pickup_hour") == 1).show()
 
 
 # Guardar resultado procesado
-# df.write.mode("overwrite").parquet("data/processed/fhvhv_tripdata_clean.parquet")
+df.write.mode("overwrite").option("header", "true").csv("data/processed/fhvhv_tripdata_clean")
 
 spark.stop()
