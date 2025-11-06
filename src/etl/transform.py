@@ -1,75 +1,74 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, hour, dayofweek, unix_timestamp, trim, upper, round
+from src.etl.spark_session import get_spark_session
+from src.etl.ingest_tripdata import ingest_tripdata
+from src.etl.ingest_zone import ingest_zonedata
+# sesión Spark
 
-# Crear sesión Spark
-spark = SparkSession.builder \
-    .appName("transform") \
-    .config("spark.sql.parquet.native.enable", "false") \
-    .config("spark.hadoop.hadoop.native.lib", "false") \
-    .getOrCreate()
+def transform_data():
+    spark = get_spark_session("UberDataTransform")
+    # ======================
+    # 1️⃣ Cargar datasets
+    # ======================
+    df = ingest_tripdata()
+    zones = ingest_zonedata()
+    # ======================
+    # 2️⃣ Limpiar columnas
+    # ======================
+    df = df.drop("SR_Flag", "DOlocationID", "Affiliated_base_number")
+    zones = zones.drop("service_zone")
 
-# ======================
-# 1️⃣ Cargar datasets
-# ======================
-df = spark.read.parquet("data/raw/fhvhv_tripdata_2025-01.parquet")
-zones = spark.read.csv("data/raw/taxi_zone_lookup.csv", header=True, inferSchema=True)
+    # Quitar filas con datos esenciales nulos
+    df = df.dropna(subset=["dispatching_base_num", "pickup_datetime", "dropOff_datetime"])
+    zones = zones.dropna(subset=["LocationID", "Borough", "Zone"]).dropDuplicates()
 
-# ======================
-# 2️⃣ Limpiar columnas
-# ======================
-df = df.drop("SR_Flag", "DOlocationID", "Affiliated_base_number")
-zones = zones.drop("service_zone")
+    # ======================
+    # 3️⃣ Calcular nuevas columnas
+    # ======================
 
-# Quitar filas con datos esenciales nulos
-df = df.dropna(subset=["dispatching_base_num", "pickup_datetime", "dropOff_datetime"])
-zones = zones.dropna(subset=["LocationID", "Borough", "Zone"]).dropDuplicates()
+    df = df.withColumn(
+        "trip_duration_min",
+        round((unix_timestamp(col("dropOff_datetime")) - unix_timestamp(col("pickup_datetime"))) / 60
+    , 2))
+    df = df.withColumn("pickup_hour", hour(col("pickup_datetime"))) \
+        .withColumn("pickup_day_of_week", dayofweek(col("pickup_datetime")))
 
-# ======================
-# 3️⃣ Calcular nuevas columnas
-# ======================
+    # Rellenar nulos en PUlocationID
+    df = df.fillna({"PUlocationID": 0})
 
-df = df.withColumn(
-    "trip_duration_min",
-    round((unix_timestamp(col("dropOff_datetime")) - unix_timestamp(col("pickup_datetime"))) / 60
-, 2))
-df = df.withColumn("pickup_hour", hour(col("pickup_datetime"))) \
-       .withColumn("pickup_day_of_week", dayofweek(col("pickup_datetime")))
+    # ======================
+    # 4️⃣ Filtrar solo viajes de Uber
+    # ======================
+    try:
+        with open("data/raw/dispatching_base_num.txt", "r") as f:
+            data_string = f.read()
+            uber_bases = [b.strip().upper() for b in data_string.split(",")]
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}")
+        uber_bases = []
 
-# Rellenar nulos en PUlocationID
-df = df.fillna({"PUlocationID": 0})
+    df = df.filter(upper(trim(col("dispatching_base_num"))).isin(uber_bases))
 
-# ======================
-# 4️⃣ Filtrar solo viajes de Uber
-# ======================
-try:
-    with open("data/raw/dispatching_base_num.txt", "r") as f:
-        data_string = f.read()
-        uber_bases = [b.strip().upper() for b in data_string.split(",")]
-except FileNotFoundError as e:
-    print(f"ERROR: {e}")
-    uber_bases = []
+    # ======================
+    # 5️⃣ Hacer el join con las zonas
+    # ======================
+    df = df.join(
+        zones,
+        df.PUlocationID == zones.LocationID,
+        "left"
+    ).withColumnRenamed("Borough", "pickup_borough") \
+    .withColumnRenamed("Zone", "pickup_zone") \
+    .drop("LocationID").drop("PUlocationID")
 
-df = df.filter(upper(trim(col("dispatching_base_num"))).isin(uber_bases))
+    # ======================
+    # 6️⃣ Ver resultados
+    # ======================
+    print("✅ Registros totales después del join:", df.count())
+    df.show(5)
 
-# ======================
-# 5️⃣ Hacer el join con las zonas
-# ======================
-df = df.join(
-    zones,
-    df.PUlocationID == zones.LocationID,
-    "left"
-).withColumnRenamed("Borough", "pickup_borough") \
- .withColumnRenamed("Zone", "pickup_zone") \
- .drop("LocationID").drop("PUlocationID")
+    return df
 
-# ======================
-# 6️⃣ Ver resultados y guardar
-# ======================
-print("✅ Registros totales después del join:", df.count())
-df.filter(col("pickup_hour") == 1).show()
+if __name__ == "__main__":
+    transform()
 
 
-# Guardar resultado procesado
-df.write.mode("overwrite").option("header", "true").csv("data/processed/fhvhv_tripdata_clean")
-
-spark.stop()

@@ -1,18 +1,11 @@
 from pyspark.sql import SparkSession
 from pyspark import SparkConf
 import os
+from src.etl.spark_session import get_spark_session
+import requests
 
-def create_spark_session():
-    conf = SparkConf() \
-        .setAppName("ZoneDataIngestion") \
-        .setMaster("local[*]")
-
-    spark = SparkSession.builder.config(conf=conf).getOrCreate()
-    spark.sparkContext.setLogLevel("WARN")
-    return spark
-
-def ingest_data():
-    spark = create_spark_session()
+def ingest_zonedata():
+    spark = get_spark_session("UberDataIngestion")
 
     raw_dir = "data/raw"
     os.makedirs(raw_dir, exist_ok=True)
@@ -34,7 +27,8 @@ def ingest_data():
 
     df.printSchema()
     df.show(5)
-    spark.stop()
+
+    return df
 
 if __name__ == "__main__":
     ingest_data()
