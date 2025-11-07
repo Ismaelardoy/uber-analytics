@@ -1,0 +1,49 @@
+if 'transformer' not in globals():
+    from mage_ai.data_preparation.decorators import transformer
+if 'test' not in globals():
+    from mage_ai.data_preparation.decorators import test
+
+import sys
+sys.path.append('src')
+from etl.transform import transform_data
+from etl.spark_session import get_spark_session
+
+@transformer
+def transform(zonedata, tripdata, *args, **kwargs):
+    """
+Load data from the Parquet paths, 
+apply the transformation using PySpark, and save the result
+    """
+    
+    spark = get_spark_session("UberDataTransform")
+
+    
+    path_zones = zonedata.get('data_path')
+    path_tripdata = tripdata.get('data_path')
+
+    print(f"📂 Reading zones from: {path_zones}")
+    print(f"📂 Reading trips from: {path_tripdata}")
+
+   
+    df_zones = spark.read.parquet(path_zones)
+    df_tripdata = spark.read.parquet(path_tripdata)
+
+    
+    df_transformed = transform_data(df_tripdata, df_zones)
+
+    
+    output_path = '/tmp/transformed_data.parquet'
+    df_transformed.write.mode('overwrite').parquet(output_path)
+
+    print(f"✅ Transformed data saved to: {output_path}")
+
+    return {'data_path': output_path}
+
+
+@test
+def test_output(output, *args) -> None:
+    """
+    Test transformer.
+    """
+    assert output is not None, 'The output is undefined'
+    assert 'data_path' in output, 'Output should contain a data_path key'

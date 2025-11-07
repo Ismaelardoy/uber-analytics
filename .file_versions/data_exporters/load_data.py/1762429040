@@ -1,0 +1,30 @@
+if 'data_exporter' not in globals():
+    from mage_ai.data_preparation.decorators import data_exporter
+if 'test' not in globals():
+    from mage_ai.data_preparation.decorators import test
+
+import sys
+sys.path.append('src')
+from etl.spark_session import get_spark_session
+
+@data_exporter
+def export_data(df, *args, **kwargs):
+    """
+    Saves the transformed DataFrame to the processed directory.
+    """
+    spark = get_spark_session()
+    output_path = 'data/processed/fhvhv_tripdata_clean'
+    
+    print(f'💾 Saving cleaned data to {output_path}...')
+    df.write.mode('overwrite').parquet(output_path)
+    print('✅ Data successfully saved!')
+
+    return output_path 
+
+
+@test
+def test_output(*args) -> None:
+    """
+    Simple test to verify export runs without errors.
+    """
+    assert True

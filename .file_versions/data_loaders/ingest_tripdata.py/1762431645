@@ -1,0 +1,14 @@
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.getOrCreate()
+
+@data_loader
+def ingest_tripdata(*args, **kwargs):
+    # Suponiendo que tienes la función original para cargar los datos
+    df = spark.read.csv("/path/to/tripdata.csv", header=True, inferSchema=True)
+    
+    # Guardar en parquet para que Mage pueda manejarlo
+    output_path = "/tmp/tripdata.parquet"
+    df.write.mode("overwrite").parquet(output_path)
+    
+    return {"tripdata_path": output_path}

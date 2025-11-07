@@ -1,0 +1,28 @@
+if 'data_loader' not in globals():
+    from mage_ai.data_preparation.decorators import data_loader
+if 'test' not in globals():
+    from mage_ai.data_preparation.decorators import test
+
+import sys
+sys.path.append('src')
+from etl.ingest_zone import ingest_zonedata
+
+@data_loader
+def load_data(*args, **kwargs):
+    """
+    Load trip data and store it as a temporary Parquet file or in-memory table.
+    Returns the path or table name instead of the DataFrame itself.
+    """
+    df = ingest_zonedata()
+
+    # tempora
+    path = '/tmp/zonedata.parquet'
+    df.write.mode('overwrite').parquet(path)
+
+    # Devuelve solo el path → Mage no intentará serializar un Spark DF
+    return {'data_path': path}
+
+@test
+def test_output(output, *args) -> None:
+    assert output is not None, 'The output is undefined'
+    assert 'data_path' in output, 'Expected key data_path missing'

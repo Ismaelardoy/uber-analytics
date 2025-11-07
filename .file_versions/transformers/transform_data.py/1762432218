@@ -1,0 +1,11 @@
+from mage_ai.data_preparation.decorators import transformer
+from src.etl.transform import transform_data as transform_data_local
+
+@transformer
+def transform_data(df_tripdata, df_zones):
+    """
+    Bloque de transformación.
+    Recibe los DataFrames de los bloques de ingestión.
+    Llama a tu función local de transformación.
+    """
+    return transform_data_local(df_tripdata, df_zones)

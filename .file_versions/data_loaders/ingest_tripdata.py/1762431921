@@ -1,0 +1,8 @@
+from src.etl.ingest_tripdata import ingest_tripdata
+from mage_ai.data_preparation.decorators import data_loader
+
+@data_loader
+def ingest_tripdata_block(*args, **kwargs):
+    df = ingest_tripdata()
+    # Devuelve el DataFrame para el siguiente bloque
+    return df

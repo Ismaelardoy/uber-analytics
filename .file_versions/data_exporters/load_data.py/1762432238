@@ -1,0 +1,11 @@
+from mage_ai.data_preparation.decorators import loader
+from src.etl.load import load_data as load_data_local
+
+@loader
+def load_data(df_transformed):
+    """
+    Bloque de carga.
+    Recibe el DataFrame transformado.
+    Llama a tu función local de load.
+    """
+    load_data_local(df_transformed)

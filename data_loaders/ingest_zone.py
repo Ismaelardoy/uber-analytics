@@ -4,26 +4,25 @@ if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
 
 import sys
-sys.path.append('src/etl')
-from ingest_zone import ingest_data, create_spark_session 
+sys.path.append('src')
+from etl.ingest_zone import ingest_zonedata
 
 @data_loader
 def load_data(*args, **kwargs):
     """
-    Template code for loading data from any source.
-
-    Returns:
-        Anything (e.g. data frame, dictionary, array, int, str, etc.)
+    Load trip data and store it as a temporary Parquet file or in-memory table.
+    Returns the path or table name instead of the DataFrame itself.
     """
-    df = ingest_data()
-    return df
+    df = ingest_zonedata()
 
+    # temporary saving
+    path = '/tmp/zonedata.parquet'
+    df.write.mode('overwrite').parquet(path)
 
+    # return path
+    return {'data_path': path}
 
 @test
 def test_output(output, *args) -> None:
-    """
-    Template code for testing the output of the block.
-    """
     assert output is not None, 'The output is undefined'
-    assert output.count() > 0, 'No rows loaded'
+    assert 'data_path' in output, 'Expected key data_path missing'
