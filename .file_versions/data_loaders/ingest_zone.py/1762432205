@@ -1,0 +1,10 @@
+from mage_ai.data_preparation.decorators import data_loader
+from src.etl.ingest_zone import ingest_zonedata as ingest_zonedata_local
+
+@data_loader
+def ingest_zone():
+    """
+    Bloque de ingestión de datos de zonas.
+    Llama a tu función local de ingestión.
+    """
+    return ingest_zonedata_local()

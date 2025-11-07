@@ -1,0 +1,24 @@
+if 'data_exporter' not in globals():
+    from mage_ai.data_preparation.decorators import data_exporter
+if 'test' not in globals():
+    from mage_ai.data_preparation.decorators import test
+
+import sys
+sys.path.append('src')
+from etl.load import load_data
+
+@data_exporter
+def export_data(df, *args, **kwargs):
+    """
+    Saves the transformed DataFrame to the processed directory.
+    """
+    loa
+
+
+@test
+def test_output(*args) -> None:
+    """
+    Simple test to verify export runs without errors.
+    """
+    assert True
+

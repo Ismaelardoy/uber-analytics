@@ -1,0 +1,51 @@
+if 'transformer' not in globals():
+    from mage_ai.data_preparation.decorators import transformer
+if 'test' not in globals():
+    from mage_ai.data_preparation.decorators import test
+
+import sys
+sys.path.append('src')
+from etl.transform_tripdata import transform_data
+from etl.spark_session import get_spark_session
+
+@transformer
+def transform(zonedata, tripdata, *args, **kwargs):
+    """
+    Template code for a transformer block.
+
+    Add more parameters to this function if this block has multiple parent blocks.
+    There should be one parameter for each output variable from each parent block.
+
+    Args:
+        data: The output from the upstream parent block
+        args: The output from any additional upstream blocks (if applicable)
+
+    Returns:
+        Anything (e.g. data frame, dictionary, array, int, str, etc.)
+    """
+    # Specify your transformation logic here
+
+    spark = get_spark_session()
+
+    path_zones = zonedata.get('data_path')
+    path_tripdata = tripdata.get('data_path')
+
+    df_zones = spark.read.parquet(path_zones)
+    df_tripdata = spark.read.parquet(path_tripdata)
+
+    df_transformed = transform(df_tripdata, df_zones)
+
+    output_path = '/tmp/transformed_data.parquet'
+    df_transformed.write.mode('overwrite').parquet(output_path)
+
+    print(f"✅ Transformed data saved to: {output_path}")
+    
+    return {'data_path' : output_path}
+
+
+@test
+def test_output(output, *args) -> None:
+    """
+    Template code for testing the output of the block.
+    """
+    assert output is not None, 'The output is undefined'

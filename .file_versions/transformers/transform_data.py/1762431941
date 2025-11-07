@@ -1,0 +1,10 @@
+from src.etl.transform import transform_data
+from mage_ai.data_preparation.decorators import data_loader
+
+@data_loader
+def transform_block(df_tripdata, df_zones, *args, **kwargs):
+    """
+    Recibe los DataFrames de los bloques de ingest y aplica transformaciones.
+    """
+    df = transform_data(df_tripdata, df_zones)
+    return df

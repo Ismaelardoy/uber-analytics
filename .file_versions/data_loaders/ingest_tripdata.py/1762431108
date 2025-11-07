@@ -1,0 +1,28 @@
+if 'data_loader' not in globals():
+    from mage_ai.data_preparation.decorators import data_loader
+if 'test' not in globals():
+    from mage_ai.data_preparation.decorators import test
+
+import sys
+sys.path.append('src')
+
+from etl.ingest_tripdata import ingest_tripdata
+
+
+@data_loader
+def load_data(*args, **kwargs):
+    """
+    Load zone data using Spark.
+    """
+    df = ingest_tripdata()
+    return df
+
+
+@test
+def test_output(output, *args) -> None:
+    """
+    Verify that the loaded DataFrame is not empty.
+    """
+    assert output is not None, '❌ Output is None'
+    assert output.count() > 0, '❌ No rows were loaded'
+    print('✅ Test passed: DataFrame loaded successfully')

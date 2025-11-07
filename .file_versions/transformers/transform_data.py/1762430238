@@ -1,0 +1,31 @@
+if 'transformer' not in globals():
+    from mage_ai.data_preparation.decorators import transformer
+if 'test' not in globals():
+    from mage_ai.data_preparation.decorators import test
+
+import sys
+sys.path.append('src')
+
+from etl.transform import transform_data
+
+@transformer
+def transform(df, *args, **kwargs):
+    """
+    Transforms the data from both ingestion blocks (tripdata + zone data).
+    Mage automatically passes outputs from upstream blocks as arguments.
+    """
+    # Mage passes the outputs from previous data_loader blocks in order.
+    df_tripdata = df[0] if isinstance(df, (list, tuple)) else df
+    df_zones = df[1] if isinstance(df, (list, tuple)) else None
+
+    transformed_df = transform_data(df_tripdata, df_zones)
+    return transformed_df
+
+
+@test
+def test_output(output, *args) -> None:
+    """
+    Simple test to ensure transformation output is valid.
+    """
+    assert output is not None, 'The transformed DataFrame is None.'
+    assert output.count() > 0, 'The transformed DataFrame is empty.'

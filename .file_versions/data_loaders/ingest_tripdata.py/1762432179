@@ -1,0 +1,10 @@
+from mage_ai.data_preparation.decorators import data_loader
+from src.etl.ingest_tripdata import ingest_tripdata as ingest_tripdata_local
+
+@data_loader
+def ingest_tripdata():
+    """
+    Bloque de ingestión de datos de trips.
+    Llama a tu función local de ingestión.
+    """
+    return ingest_tripdata_local()

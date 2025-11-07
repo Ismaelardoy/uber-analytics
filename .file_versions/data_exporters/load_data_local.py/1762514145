@@ -1,0 +1,35 @@
+if 'data_exporter' not in globals():
+    from mage_ai.data_preparation.decorators import data_exporter
+if 'test' not in globals():
+    from mage_ai.data_preparation.decorators import test
+
+import shutil
+import os
+
+@data_exporter
+def export_data(data, *args, **kwargs):
+ """
+ Final loading step of the pipeline.
+ Copies the transformed Parquet directory to the definitive output folder.
+"""
+    src_path = data.get('data_path')   # This is a file
+    dest_path = 'data/processed/transformed_data.parquet'
+
+    # If dest_path exist
+    if os.path.exists(dest_path):
+        shutil.rmtree(dest_path)
+
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+
+    # Copiar carpeta completa
+    shutil.copytree(src_path, dest_path)
+
+    print(f"✅ Parquet folder copied to: {dest_path}")
+
+    return {'final_path': dest_path}
+
+
+@test
+def test_output(output, *args) -> None:
+    assert output is not None, 'The output is undefined'
+    assert 'final_path' in output, 'Expected key final_path missing'

@@ -1,0 +1,7 @@
+from src.etl.ingest_zone import ingest_zonedata
+from mage_ai.data_preparation.decorators import data_loader
+
+@data_loader
+def ingest_zone_block(*args, **kwargs):
+    df = ingest_zonedata()
+    return df
