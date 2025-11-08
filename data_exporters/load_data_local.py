@@ -8,10 +8,10 @@ import os
 
 @data_exporter
 def export_data(data, *args, **kwargs):
- """
- Final loading step of the pipeline.
- Copies the transformed Parquet directory to the definitive output folder.
-"""
+    """
+    Final loading step of the pipeline.
+    Copies the transformed Parquet directory to the definitive output folder.
+    """
     src_path = data.get('data_path')   # This is a file
     dest_path = 'data/processed/transformed_data.parquet'
 
@@ -27,6 +27,7 @@ def export_data(data, *args, **kwargs):
     print(f"✅ Parquet folder copied to: {dest_path}")
 
     return {'final_path': dest_path}
+
 
 
 @test
