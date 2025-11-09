@@ -34,11 +34,11 @@ flowchart TD
 
 ## 📦 Pipeline Overview
 
-This project implements a **modular ETL pipeline** to process Uber/Lyft trip datasets from raw ingestion to cloud storage, ready for analytics or machine learning tasks.
+This project implements a **modular ETL pipeline** to process Uber trip datasets from raw ingestion to cloud storage, ready for analytics or machine learning tasks.
 
 1. **Data Ingestion**  
-   - Download and read large datasets from public Uber/Lyft sources.  
-   - Supports CSV and Parquet formats.  
+   - Download and read large datasets from public Uber sources.  
+   - Supports Parquet formats.  
 
 2. **Data Transformation**  
    - Clean and normalize data.  
