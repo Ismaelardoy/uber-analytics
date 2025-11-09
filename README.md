@@ -8,7 +8,7 @@
 
 ## 🔹 Project Overview
 
-A **modular ETL pipeline** for processing Uber/Lyft trip datasets, from raw ingestion to cloud storage, ready for analytics and machine learning.
+A **modular ETL pipeline** for processing Uber trip datasets, from raw ingestion to cloud storage, ready for analytics and machine learning.
 
 ### Data Flow
 
