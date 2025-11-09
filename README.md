@@ -6,7 +6,20 @@
 [![GCP](https://img.shields.io/badge/GCP-Google%20Cloud-green)](https://cloud.google.com/)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
 
----
+## 🔹 Project Overview
+
+A **modular ETL pipeline** for processing Uber/Lyft trip datasets, from raw ingestion to cloud storage, ready for analytics and machine learning.
+
+### Data Flow
+
+
+```mermaid
+flowchart TD
+    A[Zones Ingestion] --> C[Transformation]
+    B[TripData Ingestion] --> C[Transformation]
+    C --> D[Export to Local]
+    C --> E[Export to GCP]
+```
 
 ## 🛠 Technologies & Tools
 
@@ -49,16 +62,25 @@ This project implements a **modular ETL pipeline** to process Uber/Lyft trip dat
 
 ## 📁 Project Structure
 
-uber-analytics/
-├─ data/
-│ ├─ raw/ # Downloaded data
-│ └─ processed/ # Transformed Parquet files
-├─ src/ # Source code
-│ ├─ etl/ # Functions for ingestion, transform, and load
-│ └─ spark_session.py
-├─ terraform/ # Terraform scripts for GCP bucket creation
-├─ README.md
-└─ requirements.txt
+uber-analytics/<br>
+├─ .file_versions/                   # Internal file versions (local version control)<br>
+├─ .ssh_tunnel/                      # SSH tunnel configurations and scripts<br>
+├─ data/                             # Main data<br>
+├─ data_exporters/                   # Mage blocks to export data to other formats/systems<br>
+├─ data_loaders/                     # Mage blocks to load data<br>
+├─ pipelines/<br>
+│  └─ uber_etl/                      # Pipeline folder for Uber-specific ETL processes in Mage<br>
+├─ src/                              # Source code<br>
+│  ├─ etl/                           # ETL functions (ingest, transform, load)<br>
+│  └─ analysis/                      # Data analysis scripts and notebooks<br>
+├─ terraform/                        # Terraform scripts (e.g., GCP bucket creation)<br>
+├─ transformers/                     # Mage block to transform data<br>
+├─ .gitignore                         # Files and folders ignored by Git<br>
+├─ Pipfile                            # Dependencies managed with Pipenv<br>
+├─ Pipfile.lock                       # Pipenv lockfile<br>
+├─ README.md                           # Main project documentation<br>
+├─ metadata.yaml                       # Project metadata<br>
+
 
 ---
 
