@@ -1,0 +1,57 @@
+if 'data_exporter' not in globals():
+    from mage_ai.data_preparation.decorators import data_exporter
+
+
+@data_exporter
+def export_data(data, *args, **kwargs):
+    """
+    Exports data to some source.
+
+    Args:
+        data: The output from the upstream parent block
+        args: The output from any additional upstream blocks (if applicable)
+
+    Output (optional):
+        Optionally return any object and it'll be logged and
+        displayed when inspecting the block run.
+    """
+    # Specify your data exporting logic here
+
+from mage_ai.data_preparation.decorators import data_exporter
+from google.cloud import storage
+import os
+
+# Configuración directa de GCS mediante variable de entorno
+SERVICE_ACCOUNT_KEY_PATH = "/workspaces/uber-analytics/terraform/keys/my-key.json"
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = SERVICE_ACCOUNT_KEY_PATH
+
+BUCKET_NAME = "uber-analytics-bucket"
+OBJECT_KEY = "processed/transformed_data.parquet"  # carpeta dentro del bucket
+
+@data_exporter
+def export_data_to_gcs(data, *args, **kwargs):
+    """
+    Exporta la carpeta Parquet generada por PySpark a Google Cloud Storage.
+    """
+    src_path = data.get('data_path')  # carpeta Parquet generada por PySpark
+
+    if not os.path.exists(src_path):
+        raise FileNotFoundError(f"Source path does not exist: {src_path}")
+
+    # Inicializar cliente de GCS
+    client = storage.Client()
+    bucket = client.bucket(BUCKET_NAME)
+
+    # Subir todos los archivos de la carpeta Parquet
+    for root, dirs, files in os.walk(src_path):
+        for file in files:
+            local_file = os.path.join(root, file)
+            relative_path = os.path.relpath(local_file, src_path)
+            blob_path = os.path.join(OBJECT_KEY, relative_path)
+            blob = bucket.blob(blob_path)
+            blob.upload_from_filename(local_file)
+            print(f"✅ Uploaded {local_file} to gs://{BUCKET_NAME}/{blob_path}")
+
+    return {'final_path': f"gs://{BUCKET_NAME}/{OBJECT_KEY}"}
+
+

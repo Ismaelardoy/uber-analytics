@@ -10,6 +10,7 @@ pandas = "*"
 matplotlib = "*"
 seaborn = "*"
 pyarrow = "*"
+google-cloud-storage = "*"
 
 [dev-packages]
 

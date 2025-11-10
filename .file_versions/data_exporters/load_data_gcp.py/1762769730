@@ -1,0 +1,49 @@
+from mage_ai.settings.repo import get_repo_path
+from mage_ai.io.config import ConfigFileLoader
+from mage_ai.io.google_cloud_storage import GoogleCloudStorage
+from os import path
+
+if 'data_exporter' not in globals():
+    from mage_ai.data_preparation.decorators import data_exporter
+
+
+@data_exporter
+def export_data_to_google_cloud_storage(data, **kwargs) -> dict:
+    """
+    Export transformed Parquet data to a Google Cloud Storage bucket.
+    'data' should be a dict with key 'data_path' pointing to the Parquet folder.
+    Configuration is loaded from 'io_config.yaml'.
+    """
+    # Path to io_config.yaml
+    config_path = '/workspaces/uber-analytics/io_config.yaml'
+    config_profile = 'default'
+
+    # Validar que el perfil existe
+    config_loader = ConfigFileLoader(config_path)
+    if config_profile not in config_loader.config.get('google_cloud_storage', {}):
+        raise ValueError(
+            f"Perfil '{config_profile}' no encontrado en io_config.yaml. "
+            "Asegúrate de que tu archivo YAML tenga la sección correcta con la indentación adecuada."
+        )
+    
+    # GCS target info
+    bucket_name = 'uber-analytics-bucket'  
+    object_key = 'data/processed/transformed_data/'  
+
+    # Get path to transformed Parquet folder
+    src_path = data.get('data_path')
+    if not src_path or not path.exists(src_path):
+        raise ValueError(f"Invalid data path: {src_path}")
+
+    # Export to GCS
+    GoogleCloudStorage.with_config(
+        ConfigFileLoader(config_path, config_profile)
+    ).export(
+        src_path,
+        bucket_name,
+        object_key,
+    )
+
+    print(f"✅ Parquet folder exported to GCS: gs://{bucket_name}/{object_key}")
+
+    return {'gcs_path': f"gs://{bucket_name}/{object_key}"}
