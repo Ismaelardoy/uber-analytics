@@ -1,0 +1,37 @@
+from mage_ai.settings.repo import get_repo_path
+from mage_ai.io.config import ConfigFileLoader
+from mage_ai.io.google_cloud_storage import GoogleCloudStorage
+import os
+import shutil
+
+if 'data_exporter' not in globals():
+    from mage_ai.data_preparation.decorators import data_exporter
+
+
+@data_exporter
+def export_data_to_gcs(data, **kwargs):
+    """
+    Export the transformed Parquet folder to a Google Cloud Storage bucket.
+    Requires a valid configuration in io_config.yaml and active GCP credentials.
+    """
+    config_path = os.path.join(get_repo_path(), 'io_config.yaml')
+    config_profile = 'default'
+
+    # Path from the transform block
+    src_path = data.get('data_path')
+
+    # GCS bucket info
+    bucket_name = 'uber-analytics-bucket'
+    object_key = 'data/processed/transformed_data.parquet'  # ruta dentro del bucket
+
+    # Export parquet directory
+    print(f"Uploading {src_path} to gs://{bucket_name}/{object_key} ...")
+
+    gcs = GoogleCloudStorage.with_config(ConfigFileLoader(config_path, config_profile))
+
+    # Export folder as parquet (GCS manejará los archivos internos)
+    gcs.export(src_path, bucket_name, object_key)
+
+    print(f"✅ Uploaded Parquet data to: gs://{bucket_name}/{object_key}")
+
+    return {'bucket_path': f'gs://{bucket_name}/{object_key}'}

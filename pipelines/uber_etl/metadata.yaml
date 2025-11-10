@@ -36,6 +36,7 @@ blocks:
   configuration: {}
   downstream_blocks:
   - load_data_local
+  - gcp
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -68,6 +69,22 @@ blocks:
   upstream_blocks:
   - transform_data
   uuid: load_data_local
+- all_upstream_blocks_executed: false
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: gcp
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - transform_data
+  uuid: gcp
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}

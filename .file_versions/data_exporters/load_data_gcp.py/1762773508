@@ -1,0 +1,44 @@
+if 'data_exporter' not in globals():
+    from mage_ai.data_preparation.decorators import data_exporter
+if 'test' not in globals():
+    from mage_ai.data_preparation.decorators import test
+
+from mage_ai.io.google_cloud_storage import GoogleCloudStorage
+import os
+
+# Configuración directa de GCS
+SERVICE_ACCOUNT_KEY_PATH = "/workspaces/uber-analytics/terraform/keys/my-key.json"
+PROJECT_ID = "uber-analytics-477609"
+BUCKET_NAME = "uber-analytics-bucket"
+OBJECT_KEY = "processed/transformed_data_parquet"  # carpeta dentro del bucket
+
+@gcs_exporter
+@data_exporter
+def export_data_to_gcs(data, *args, **kwargs):
+    """
+    Exporta la carpeta Parquet generada por el bloque de transformación a Google Cloud Storage.
+    """
+    src_path = data.get('data_path')  # carpeta Parquet generada por PySpark
+
+    if not os.path.exists(src_path):
+        raise FileNotFoundError(f"Source path does not exist: {src_path}")
+
+    # Inicializar GCS
+    gcs = GoogleCloudStorage(
+        service_account_key_path=SERVICE_ACCOUNT_KEY_PATH,
+        project=PROJECT_ID,
+        bucket=BUCKET_NAME,
+    )
+
+    # Exportar carpeta Parquet al bucket
+    gcs.export(src_path, BUCKET_NAME, OBJECT_KEY)
+
+    print(f"✅ Parquet folder exported to GCS bucket '{BUCKET_NAME}' at '{OBJECT_KEY}'")
+
+    return {'final_path': f"gs://{BUCKET_NAME}/{OBJECT_KEY}"}
+
+
+@test
+def test_output(output, *args) -> None:
+    assert output is not None, 'The output is undefined'
+    assert 'final_path' in output, 'Expected key final_path missing'
