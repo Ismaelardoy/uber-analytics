@@ -24,9 +24,10 @@ flowchart TD
 ## 🛠 Technologies & Tools
 
 - **Languages:** Python, SQL, Bash  
-- **Big Data & ETL:** Apache Spark, PySpark, Data Lakes  
-- **Cloud:** Google Cloud Platform (GCP)  
+- **Big Data & ETL:** Apache Spark, PySpark  
+- **Cloud:** Google Cloud Platform (GCP), BigQuery  
 - **Infrastructure:** Terraform for automated bucket provisioning  
+- **Data Visualization:** [Google Looker Studio](https://lookerstudio.google.com/)  
 - **Version Control:** Git/GitHub  
 - **Others:** Docker, Mage AI  
 
@@ -101,4 +102,34 @@ terraform apply
 mage start
 ```
 
+## 📊 Analytics Dashboard (Google Looker Studio)
+
+The processed Uber trip data was visualized using **Google Looker Studio**, providing actionable insights into ride patterns and operational behavior across New York City.
+
+### Dashboard Overview — *January 2025*
+![Uber Dashboard](images/uber_dashboard.png)  
+*(Source: [Google Looker Studio](https://lookerstudio.google.com/))*
+
+### Key Visuals
+
+| Chart | Description |
+|-------|--------------|
+| 🗓️ **Trip Activity by Day of Week** | Displays Uber trip volume by weekday. Demand peaks on **Friday (18.2%)** and **Saturday (17.7%)**, showing higher weekend mobility. |
+| ⏰ **Trip Activity by Hour** | Highlights demand by time of day. The busiest periods occur between **4 PM and 8 PM**, matching NYC’s evening commute. |
+| 🗺️ **Geographic Demand** | A heatmap visualization showing trip density concentrated in **Manhattan** and central **Brooklyn**. |
+| 🧾 **Base Ranking** | Lists the top 10 Uber dispatch bases by total number of trips. Base **B01536** and **B00937** lead the activity for January 2025. |
+| ⏱️ **Average Trip Duration** | The mean trip duration across NYC is **≈19.7 minutes**, indicating a balanced distribution between short and medium-distance rides. |
+
+> 🔗 Full interactive dashboard available on [Google Looker Studio](https://lookerstudio.google.com/) *(https://lookerstudio.google.com/reporting/6083863b-2ffb-41e5-9aa4-6c4800622059)*
+
+---
+
+## 🧩 Integration in the Data Pipeline
+
+The Looker Studio dashboard consumes the processed data exported from the ETL pipeline:
+- **Source:** Transformed dataset stored in Google Cloud Storage  
+- **Visualization:** Connected to **BigQuery** for dynamic analysis  
+- **Purpose:** Real-time tracking of demand, duration, and spatial patterns  
+
+---
 
