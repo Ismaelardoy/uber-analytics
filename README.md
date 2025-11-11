@@ -72,8 +72,7 @@ uber-analytics/<br>
 ├─ pipelines/<br>
 │  └─ uber_etl/                      # Pipeline folder for Uber-specific ETL processes in Mage<br>
 ├─ src/                              # Source code<br>
-│  ├─ etl/                           # ETL functions (ingest, transform, load)<br>
-│  └─ analysis/                      # Data analysis scripts and notebooks<br>
+│  ├─ etl/                           # ETL functions (ingest, transform, load)<br>                    
 ├─ terraform/                        # Terraform scripts (e.g., GCP bucket creation)<br>
 ├─ transformers/                     # Mage block to transform data<br>
 ├─ .gitignore                         # Files and folders ignored by Git<br>
@@ -115,7 +114,7 @@ The processed Uber trip data was visualized using **Google Looker Studio**, prov
 | Chart | Description |
 |-------|--------------|
 | 🗓️ **Trip Activity by Day of Week** | Displays Uber trip volume by weekday. Demand peaks on **Friday (18.2%)** and **Saturday (17.7%)**, showing higher weekend mobility. |
-| ⏰ **Trip Activity by Hour** | Highlights demand by time of day. The busiest periods occur between **4 PM and 8 PM**, matching NYC’s evening commute. |
+| ⏰ **Trip Activity by Hour** | Highlights demand by time of day. The busiest periods occur between **4 AM and 8 AM**, corresponding to New York City’s **morning rush hour**. |
 | 🗺️ **Geographic Demand** | A heatmap visualization showing trip density concentrated in **Manhattan** and central **Brooklyn**. |
 | 🧾 **Base Ranking** | Lists the top 10 Uber dispatch bases by total number of trips. Base **B01536** and **B00937** lead the activity for January 2025. |
 | ⏱️ **Average Trip Duration** | The mean trip duration across NYC is **≈19.7 minutes**, indicating a balanced distribution between short and medium-distance rides. |
